@@ -108,7 +108,7 @@ func New(config Config) (*Console, error) {
 	return console, nil
 }
 
-// init  retrieves the available APIs from the remote RPC provider and initializes
+// init retrieves the available APIs from the remote RPC provider and initializes
 // the console's JavaScript namespaces based on the exposed modules.
 func (c *Console) init(preload []string) error {
 	c.initConsoleObject()
@@ -191,7 +191,7 @@ func (c *Console) initExtensions() error {
 	if err != nil {
 		return fmt.Errorf("api modules: %v", err)
 	}
-	aliases := map[string]struct{}{"axis": {}, "personal": {}}
+	aliases := map[string]struct{}{"neon": {}, "personal": {}}
 	for api := range apis {
 		if api == "web3" {
 			continue
@@ -305,9 +305,9 @@ func (c *Console) Welcome() {
 	if res, err := c.jsre.Run(`
 		var message = "instance: " + web3.version.node + "\n";
 		try {
-			message += "coinbase: " + axis.coinbase + "\n";
+			message += "coinbase: " + neon.coinbase + "\n";
 		} catch (err) {}
-		message += "at block: " + axis.blockNumber + " (" + new Date(1000 * axis.getBlock(axis.blockNumber).timestamp) + ")\n";
+		message += "at block: " + neon.blockNumber + " (" + new Date(1000 * neon.getBlock(neon.blockNumber).timestamp) + ")\n";
 		try {
 			message += " datadir: " + admin.datadir + "\n";
 		} catch (err) {}
