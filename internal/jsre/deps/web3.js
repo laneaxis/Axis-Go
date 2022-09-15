@@ -926,7 +926,7 @@ var SolidityParam = require('./param');
  * @returns {SolidityParam}
  */
 var formatInputInt = function (value) {
-    BigNumber.config(c.NEON_BIGNUMBER_ROUNDING_MODE);
+    BigNumber.config(c.AXIS_BIGNUMBER_ROUNDING_MODE);
     var result = utils.padLeft(utils.toTwosComplement(value).toString(16), 64);
     return new SolidityParam(result);
 };
@@ -1758,10 +1758,10 @@ if (typeof XMLHttpRequest === 'undefined') {
  */
 
 
-/// required to define NEON_BIGNUMBER_ROUNDING_MODE
+/// required to define AXIS_BIGNUMBER_ROUNDING_MODE
 var BigNumber = require('bignumber.js');
 
-var NEON_UNITS = [
+var AXIS_UNITS = [
     'wei',
     'kwei',
     'Mwei',
@@ -1792,11 +1792,11 @@ var NEON_UNITS = [
 ];
 
 module.exports = {
-    NEON_PADDING: 32,
-    NEON_SIGNATURE_LENGTH: 4,
-    NEON_UNITS: NEON_UNITS,
-    NEON_BIGNUMBER_ROUNDING_MODE: { ROUNDING_MODE: BigNumber.ROUND_DOWN },
-    NEON_POLLING_TIMEOUT: 1000/2,
+    AXIS_PADDING: 32,
+    AXIS_SIGNATURE_LENGTH: 4,
+    AXIS_UNITS: AXIS_UNITS,
+    AXIS_BIGNUMBER_ROUNDING_MODE: { ROUNDING_MODE: BigNumber.ROUND_DOWN },
+    AXIS_POLLING_TIMEOUT: 1000/2,
     defaultBlock: 'latest',
     defaultAccount: undefined
 };
@@ -1912,17 +1912,17 @@ var unitMap = {
     'gether':       '1000000000000000000000000000',
     'tether':       '1000000000000000000000000000000',
 
-    'noneon':      '0',
-    'femtoneon':   '1000',
-    'piconeon':    '1000000',
-    'nanoneon':    '1000000000',
-    'microneon':   '1000000000000',
-    'millineon':   '1000000000000000',
-    'neon':        '1000000000000000000',
-    'kneon':       '1000000000000000000000',
-    'mneon':       '1000000000000000000000000',
-    'gneon':       '1000000000000000000000000000',
-    'tneon':       '1000000000000000000000000000000'
+    'noaxis':      '0',
+    'femtoaxis':   '1000',
+    'picoaxis':    '1000000',
+    'nanoaxis':    '1000000000',
+    'microaxis':   '1000000000000',
+    'milliaxis':   '1000000000000000',
+    'axis':        '1000000000000000000',
+    'kaxis':       '1000000000000000000000',
+    'maxis':       '1000000000000000000000000',
+    'gaxis':       '1000000000000000000000000000',
+    'taxis':       '1000000000000000000000000000000'
 };
 
 /**
@@ -2540,7 +2540,7 @@ module.exports={
 
 var RequestManager = require('./web3/requestmanager');
 var Iban = require('./web3/iban');
-var Neon = require('./web3/methods/neon');
+var Axis = require('./web3/methods/axis');
 var Debug = require('./web3/methods/debug');
 var Sfc = require('./web3/methods/sfc');
 var Abft = require('./web3/methods/abft');
@@ -2566,7 +2566,7 @@ var BigNumber = require('bignumber.js');
 function Web3 (provider) {
     this._requestManager = new RequestManager(provider);
     this.currentProvider = provider;
-    this.neon = new Neon(this);
+    this.axis = new Axis(this);
     this.debug = new Debug(this);
     this.sfc = new Sfc(this);
     this.abft = new Abft(this);
@@ -2667,7 +2667,7 @@ Web3.prototype.createBatch = function () {
 module.exports = Web3;
 
 
-},{"./utils/sha3":19,"./utils/utils":20,"./version.json":21,"./web3/batch":24,"./web3/extend":28,"./web3/httpprovider":32,"./web3/iban":33,"./web3/ipcprovider":34,"./web3/methods/db":37,"./web3/methods/neon":38,"./web3/methods/debug":380,"./web3/methods/sfc":381,"./web3/methods/abft":382,"./web3/methods/dag":383,"./web3/methods/net":39,"./web3/methods/personal":40,"./web3/methods/shh":41,"./web3/methods/swarm":42,"./web3/property":45,"./web3/requestmanager":46,"./web3/settings":47,"bignumber.js":"bignumber.js"}],23:[function(require,module,exports){
+},{"./utils/sha3":19,"./utils/utils":20,"./version.json":21,"./web3/batch":24,"./web3/extend":28,"./web3/httpprovider":32,"./web3/iban":33,"./web3/ipcprovider":34,"./web3/methods/db":37,"./web3/methods/axis":38,"./web3/methods/debug":380,"./web3/methods/sfc":381,"./web3/methods/abft":382,"./web3/methods/dag":383,"./web3/methods/net":39,"./web3/methods/personal":40,"./web3/methods/shh":41,"./web3/methods/swarm":42,"./web3/property":45,"./web3/requestmanager":46,"./web3/settings":47,"bignumber.js":"bignumber.js"}],23:[function(require,module,exports){
 /*
     This file is part of web3.js.
 
@@ -2746,7 +2746,7 @@ AllSolidityEvents.prototype.execute = function (options, callback) {
 
     var o = this.encode(options);
     var formatter = this.decode.bind(this);
-    return new Filter(o, 'neon', this._requestManager, watches.neon(), formatter, callback);
+    return new Filter(o, 'axis', this._requestManager, watches.axis(), formatter, callback);
 };
 
 AllSolidityEvents.prototype.attachToContract = function (contract) {
@@ -2884,7 +2884,7 @@ var addFunctionsToContract = function (contract) {
     contract.abi.filter(function (json) {
         return json.type === 'function';
     }).map(function (json) {
-        return new SolidityFunction(contract._neon, json, contract.address);
+        return new SolidityFunction(contract._axis, json, contract.address);
     }).forEach(function (f) {
         f.attachToContract(contract);
     });
@@ -2902,11 +2902,11 @@ var addEventsToContract = function (contract) {
         return json.type === 'event';
     });
 
-    var All = new AllEvents(contract._neon._requestManager, events, contract.address);
+    var All = new AllEvents(contract._axis._requestManager, events, contract.address);
     All.attachToContract(contract);
 
     events.map(function (json) {
-        return new SolidityEvent(contract._neon._requestManager, json, contract.address);
+        return new SolidityEvent(contract._axis._requestManager, json, contract.address);
     }).forEach(function (e) {
         e.attachToContract(contract);
     });
@@ -2926,7 +2926,7 @@ var checkForContractAddress = function(contract, callback){
         callbackFired = false;
 
     // wait for receipt
-    var filter = contract._neon.filter('latest', function(e){
+    var filter = contract._axis.filter('latest', function(e){
         if (!e && !callbackFired) {
             count++;
 
@@ -2944,10 +2944,10 @@ var checkForContractAddress = function(contract, callback){
 
             } else {
 
-                contract._neon.getTransactionReceipt(contract.transactionHash, function(e, receipt){
+                contract._axis.getTransactionReceipt(contract.transactionHash, function(e, receipt){
                     if(receipt && !callbackFired) {
 
-                        contract._neon.getCode(receipt.contractAddress, function(e, code){
+                        contract._axis.getCode(receipt.contractAddress, function(e, code){
                             /*jshint maxcomplexity: 6 */
 
                             if(callbackFired || !code)
@@ -2990,8 +2990,8 @@ var checkForContractAddress = function(contract, callback){
  * @method ContractFactory
  * @param {Array} abi
  */
-var ContractFactory = function (neon, abi) {
-    this.neon = neon;
+var ContractFactory = function (axis, abi) {
+    this.axis = axis;
     this.abi = abi;
 
     /**
@@ -3007,7 +3007,7 @@ var ContractFactory = function (neon, abi) {
     this.new = function () {
         /*jshint maxcomplexity: 7 */
 
-        var contract = new Contract(this.neon, this.abi);
+        var contract = new Contract(this.axis, this.abi);
 
         // parse arguments
         var options = {}; // required!
@@ -3039,7 +3039,7 @@ var ContractFactory = function (neon, abi) {
         if (callback) {
 
             // wait for the contract address and check if the code was deployed
-            this.neon.sendTransaction(options, function (err, hash) {
+            this.axis.sendTransaction(options, function (err, hash) {
                 if (err) {
                     callback(err);
                 } else {
@@ -3053,7 +3053,7 @@ var ContractFactory = function (neon, abi) {
                 }
             });
         } else {
-            var hash = this.neon.sendTransaction(options);
+            var hash = this.axis.sendTransaction(options);
             // add the transaction hash
             contract.transactionHash = hash;
             checkForContractAddress(contract);
@@ -3088,7 +3088,7 @@ var ContractFactory = function (neon, abi) {
  * otherwise calls callback function (err, contract)
  */
 ContractFactory.prototype.at = function (address, callback) {
-    var contract = new Contract(this.neon, this.abi, address);
+    var contract = new Contract(this.axis, this.abi, address);
 
     // this functions are not part of prototype,
     // because we don't want to spoil the interface
@@ -3128,8 +3128,8 @@ ContractFactory.prototype.getData = function () {
  * @param {Array} abi
  * @param {Address} contract address
  */
-var Contract = function (neon, abi, address) {
-    this._neon = neon;
+var Contract = function (axis, abi, address) {
+    this._axis = axis;
     this.transactionHash = null;
     this.address = address;
     this.abi = abi;
@@ -3371,7 +3371,7 @@ SolidityEvent.prototype.execute = function (indexed, options, callback) {
 
     var o = this.encode(indexed, options);
     var formatter = this.decode.bind(this);
-    return new Filter(o, 'neon', this._requestManager, watches.neon(), formatter, callback);
+    return new Filter(o, 'axis', this._requestManager, watches.axis(), formatter, callback);
 };
 
 /**
@@ -3505,7 +3505,7 @@ var getOptions = function (options, type) {
 
 
     switch(type) {
-        case 'neon':
+        case 'axis':
 
             // make sure topics, get converted to hex
             options.topics = options.topics || [];
@@ -4319,8 +4319,8 @@ var sha3 = require('../utils/sha3');
 /**
  * This prototype should be used to call/sendTransaction to solidity functions
  */
-var SolidityFunction = function (neon, json, address) {
-    this._neon = neon;
+var SolidityFunction = function (axis, json, address) {
+    this._axis = axis;
     this._inputTypes = json.inputs.map(function (i) {
         return i.type;
     });
@@ -4422,12 +4422,12 @@ SolidityFunction.prototype.call = function () {
 
 
     if (!callback) {
-        var output = this._neon.call(payload, defaultBlock);
+        var output = this._axis.call(payload, defaultBlock);
         return this.unpackOutput(output);
     }
 
     var self = this;
-    this._neon.call(payload, defaultBlock, function (error, output) {
+    this._axis.call(payload, defaultBlock, function (error, output) {
         if (error) return callback(error, null);
 
         var unpacked = null;
@@ -4457,10 +4457,10 @@ SolidityFunction.prototype.sendTransaction = function () {
     }
 
     if (!callback) {
-        return this._neon.sendTransaction(payload);
+        return this._axis.sendTransaction(payload);
     }
 
-    this._neon.sendTransaction(payload, callback);
+    this._axis.sendTransaction(payload, callback);
 };
 
 /**
@@ -4474,10 +4474,10 @@ SolidityFunction.prototype.estimateGas = function () {
     var payload = this.toPayload(args);
 
     if (!callback) {
-        return this._neon.estimateGas(payload);
+        return this._axis.estimateGas(payload);
     }
 
-    this._neon.estimateGas(payload, callback);
+    this._axis.estimateGas(payload, callback);
 };
 
 /**
@@ -5549,7 +5549,7 @@ var uncleCountCall = function (args) {
     return (utils.isString(args[0]) && args[0].indexOf('0x') === 0) ? 'eth_getUncleCountByBlockHash' : 'eth_getUncleCountByBlockNumber';
 };
 
-function Neon(web3) {
+function Axis(web3) {
     this._requestManager = web3._requestManager;
 
     var self = this;
@@ -5569,7 +5569,7 @@ function Neon(web3) {
     this.sendIBANTransaction = transfer.bind(null, this);
 }
 
-Object.defineProperty(Neon.prototype, 'defaultBlock', {
+Object.defineProperty(Axis.prototype, 'defaultBlock', {
     get: function () {
         return c.defaultBlock;
     },
@@ -5579,7 +5579,7 @@ Object.defineProperty(Neon.prototype, 'defaultBlock', {
     }
 });
 
-Object.defineProperty(Neon.prototype, 'defaultAccount', {
+Object.defineProperty(Axis.prototype, 'defaultAccount', {
     get: function () {
         return c.defaultAccount;
     },
@@ -5756,40 +5756,40 @@ var methods = function () {
 
     var getEvent = new Method({
         name: 'getEvent',
-        call: 'neon_getEvent',
+        call: 'axis_getEvent',
         params: 2
     });
 
     var getEventHeader = new Method({
         name: 'getEventHeader',
-        call: 'neon_getEventHeader',
+        call: 'axis_getEventHeader',
         params: 1
     });
 
     var getHeads = new Method({
         name: 'getHeads',
-        call: 'neon_getHeads',
+        call: 'axis_getHeads',
         params: 1,
         inputFormatter: [formatters.inputBlockNumberFormatter]
     });
 
     var getConsensusTime = new Method({
         name: 'getConsensusTime',
-        call: 'neon_getConsensusTime',
+        call: 'axis_getConsensusTime',
         params: 1,
         outputFormatter: utils.toDecimal
     });
 
     var currentEpoch = new Method({
         name: 'currentEpoch',
-        call: 'neon_currentEpoch',
+        call: 'axis_currentEpoch',
         params: 0,
         outputFormatter: utils.toDecimal
     });
 
     var getEpochStats = new Method({
         name: 'getEpochStats',
-        call: 'neon_getEpochStats',
+        call: 'axis_getEpochStats',
         params: 1,
         inputFormatter: [formatters.inputBlockNumberFormatter],
         outputFormatter: formatters.outputEpochStatsFormatter
@@ -5866,28 +5866,28 @@ var properties = function () {
     ];
 };
 
-Neon.prototype.contract = function (abi) {
+Axis.prototype.contract = function (abi) {
     var factory = new Contract(this, abi);
     return factory;
 };
 
-Neon.prototype.filter = function (options, callback, filterCreationErrorCallback) {
-    return new Filter(options, 'neon', this._requestManager, watches.neon(), formatters.outputLogFormatter, callback, filterCreationErrorCallback);
+Axis.prototype.filter = function (options, callback, filterCreationErrorCallback) {
+    return new Filter(options, 'axis', this._requestManager, watches.axis(), formatters.outputLogFormatter, callback, filterCreationErrorCallback);
 };
 
-Neon.prototype.namereg = function () {
+Axis.prototype.namereg = function () {
     return this.contract(namereg.global.abi).at(namereg.global.address);
 };
 
-Neon.prototype.icapNamereg = function () {
+Axis.prototype.icapNamereg = function () {
     return this.contract(namereg.icap.abi).at(namereg.icap.address);
 };
 
-Neon.prototype.isSyncing = function (callback) {
+Axis.prototype.isSyncing = function (callback) {
     return new IsSyncing(this._requestManager, callback);
 };
 
-module.exports = Neon;
+module.exports = Axis;
 
 },{"../../utils/config":18,"../../utils/utils":20,"../contract":25,"../filter":29,"../formatters":30,"../iban":33,"../method":36,"../namereg":44,"../property":45,"../syncing":48,"../transfer":49,"./watches":43}],380:[function(require,module,exports){
 /*
@@ -6841,7 +6841,7 @@ module.exports = Swarm;
 var Method = require('../method');
 
 /// @returns an array of objects describing web3.eth.filter api methods
-var neon = function () {
+var axis = function () {
     var newFilterCall = function (args) {
         var type = args[0];
 
@@ -6919,7 +6919,7 @@ var shh = function () {
 };
 
 module.exports = {
-    neon: neon,
+    axis: axis,
     shh: shh
 };
 
@@ -7309,7 +7309,7 @@ RequestManager.prototype.reset = function (keepIsSyncing) {
  */
 RequestManager.prototype.poll = function () {
     /*jshint maxcomplexity: 6 */
-    this.timeout = setTimeout(this.poll.bind(this), c.NEON_POLLING_TIMEOUT);
+    this.timeout = setTimeout(this.poll.bind(this), c.AXIS_POLLING_TIMEOUT);
 
     if (Object.keys(this.polls).length === 0) {
         return;
@@ -7519,23 +7519,23 @@ var exchangeAbi = require('../contracts/SmartExchange.json');
  * @param {Value} value to be tranfered
  * @param {Function} callback, callback
  */
-var transfer = function (neon, from, to, value, callback) {
+var transfer = function (axis, from, to, value, callback) {
     var iban = new Iban(to);
     if (!iban.isValid()) {
         throw new Error('invalid iban address');
     }
 
     if (iban.isDirect()) {
-        return transferToAddress(neon, from, iban.address(), value, callback);
+        return transferToAddress(axis, from, iban.address(), value, callback);
     }
 
     if (!callback) {
-        var address = neon.icapNamereg().addr(iban.institution());
-        return deposit(neon, from, address, value, iban.client());
+        var address = axis.icapNamereg().addr(iban.institution());
+        return deposit(axis, from, address, value, iban.client());
     }
 
-    neon.icapNamereg().addr(iban.institution(), function (err, address) {
-        return deposit(neon, from, address, value, iban.client(), callback);
+    axis.icapNamereg().addr(iban.institution(), function (err, address) {
+        return deposit(axis, from, address, value, iban.client(), callback);
     });
 
 };
@@ -7549,8 +7549,8 @@ var transfer = function (neon, from, to, value, callback) {
  * @param {Value} value to be tranfered
  * @param {Function} callback, callback
  */
-var transferToAddress = function (neon, from, to, value, callback) {
-    return neon.sendTransaction({
+var transferToAddress = function (axis, from, to, value, callback) {
+    return axis.sendTransaction({
         address: to,
         from: from,
         value: value
@@ -7567,9 +7567,9 @@ var transferToAddress = function (neon, from, to, value, callback) {
  * @param {String} client unique identifier
  * @param {Function} callback, callback
  */
-var deposit = function (neon, from, to, value, client, callback) {
+var deposit = function (axis, from, to, value, client, callback) {
     var abi = exchangeAbi;
-    return neon.contract(abi).at(to).deposit(client, {
+    return axis.contract(abi).at(to).deposit(client, {
         from: from,
         value: value
     }, callback);

@@ -22,9 +22,9 @@ var Modules = map[string]string{
 	"admin":      AdminJs,
 	"chequebook": ChequebookJs,
 	"clique":     CliqueJs,
-	"neonash":    NeonashJs,
+	"axisash":    AxisashJs,
 	"debug":      DebugJs,
-	"neon":       NeonJs,
+	"axis":       AxisJs,
 	"miner":      MinerJs,
 	"net":        NetJs,
 	"personal":   PersonalJs,
@@ -118,9 +118,9 @@ web3._extend({
 });
 `
 
-const NeonashJs = `
+const AxisashJs = `
 web3._extend({
-	property: 'neonash',
+	property: 'axisash',
 	methods: [
 		new web3._extend.Method({
 			name: 'getWork',
@@ -487,9 +487,9 @@ web3._extend({
 });
 `
 
-const NeonJs = `
+const AxisJs = `
 web3._extend({
-	property: 'neon',
+	property: 'axis',
 	methods: [
 		new web3._extend.Method({
 			name: 'chainId',
